@@ -7,8 +7,6 @@ import { StringOutputParser } from "langchain/schema/output_parser"
 import * as dotenv from "dotenv"
 import { PromptTemplate } from "langchain/prompts"
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents"
-import { FaissStore } from "langchain/vectorstores/faiss" 
-import { Chroma } from "langchain/vectorstores/chroma"
 dotenv.config()
 
 
@@ -37,34 +35,20 @@ export class RagGenerator{
         try{
             if(!question) throw new Error("Question cannot be empty")
             const docs=await this.loader.load()
-            console.log("DOCS")
-            //console.log(docs)
             const chunks= await this.splitter.splitDocuments(docs)
-            console.log("chunks")
-            console.log(process.env.GOOGLE_API_KEY)
-            console.log(process.env.GROQ_API_KEY)
-            //console.log(chunks)
             const vectorDb=await MemoryVectorStore.fromDocuments(chunks,this.embeddings)
-            console.log("VECTOR DB")
-            const retriever=vectorDb.asRetriever({k:3})
-            console.log("RETRIEVER ")
-            console.log(question)
-         
+            const retriever=vectorDb.asRetriever({k:3})         
             const relevant_docs=await retriever._getRelevantDocuments(question)
-            console.log("RELEVANT DOCS")
-            console.log(relevant_docs)
 
             const rag_chain=await createStuffDocumentsChain({
                 llm:this.llm,
                 prompt:this.prompt,
                 outputParser:this.parser
             })
-            console.log("RAG CHAIN")
             const response=await rag_chain.invoke({input:question,context:relevant_docs})
             return response
             
         }catch(err){
-            console.log(err)
             return err
         }
     }
