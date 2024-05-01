@@ -16,6 +16,7 @@
     "@langchain/google-genai": "^0.0.12",
     "@langchain/groq": "^0.0.9",
     "@langchain/nomic": "^0.0.4",
+    "chromadb": "^1.8.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "faiss-node": "^0.5.1",

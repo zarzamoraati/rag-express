@@ -7,6 +7,7 @@ import { StringOutputParser } from "langchain/schema/output_parser"
 import * as dotenv from "dotenv"
 import { PromptTemplate } from "langchain/prompts"
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents"
+
 dotenv.config()
 
 
@@ -37,9 +38,12 @@ export class RagGenerator{
             const docs=await this.loader.load()
             const chunks= await this.splitter.splitDocuments(docs)
             const vectorDb=await MemoryVectorStore.fromDocuments(chunks,this.embeddings)
-            const retriever=vectorDb.asRetriever({k:3})         
-            const relevant_docs=await retriever._getRelevantDocuments(question)
-
+            retriever=vectorDb.asRetriever({k:3})         
+            relevant_docs=await retriever._getRelevantDocuments(question)
+            console.log("guess1")
+            const relevant_docs=await vectorDb.similaritySearch(question,3)
+            console.log("guess2")
+            console.log(relevant_docs)
             const rag_chain=await createStuffDocumentsChain({
                 llm:this.llm,
                 prompt:this.prompt,
